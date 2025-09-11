@@ -1812,7 +1812,7 @@ static enum sp_return get_config(struct sp_port *port, struct port_data *data,
 #endif
 
 	for (i = 0; i < NUM_STD_BAUDRATES; i++) {
-		if (cfgetispeed(&data->term) == std_baudrates[i].index) {
+		if (cfgetospeed(&data->term) == std_baudrates[i].index) {
 			config->baudrate = std_baudrates[i].value;
 			break;
 		}
@@ -1820,7 +1820,7 @@ static enum sp_return get_config(struct sp_port *port, struct port_data *data,
 
 	if (i == NUM_STD_BAUDRATES) {
 #ifdef __APPLE__
-		config->baudrate = (int)data->term.c_ispeed;
+		config->baudrate = (int)data->term.c_ospeed;
 #elif defined(USE_TERMIOS_SPEED)
 		TRY(get_baudrate(port->fd, &config->baudrate));
 #else
