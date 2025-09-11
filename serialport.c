@@ -23,6 +23,7 @@
 
 #include "libserialport_internal.h"
 
+#ifndef HAVE_SANE_TERMIOS
 static const struct std_baudrate std_baudrates[] = {
 #ifdef _WIN32
 	/*
@@ -42,8 +43,8 @@ static const struct std_baudrate std_baudrates[] = {
 #endif
 #endif
 };
-
 #define NUM_STD_BAUDRATES ARRAY_SIZE(std_baudrates)
+#endif
 
 void (*sp_debug_handler)(const char *format, ...) = sp_default_debug_handler;
 
@@ -1692,7 +1693,9 @@ static enum sp_return set_flow(int fd, struct port_data *data)
 static enum sp_return get_config(struct sp_port *port, struct port_data *data,
 	struct sp_port_config *config)
 {
+#ifndef HAVE_SANE_TERMIOS
 	unsigned int i;
+#endif
 
 	TRACE("%p, %p, %p", port, data, config);
 
@@ -1811,6 +1814,9 @@ static enum sp_return get_config(struct sp_port *port, struct port_data *data,
 	data->termiox_supported = 0;
 #endif
 
+#ifdef HAVE_SANE_TERMIOS
+	config->baudrate = cfgetospeed(&data->term);
+#else
 	for (i = 0; i < NUM_STD_BAUDRATES; i++) {
 		if (cfgetospeed(&data->term) == std_baudrates[i].index) {
 			config->baudrate = std_baudrates[i].value;
@@ -1827,6 +1833,7 @@ static enum sp_return get_config(struct sp_port *port, struct port_data *data,
 		config->baudrate = -1;
 #endif
 	}
+#endif
 
 	switch (data->term.c_cflag & CSIZE) {
 	case CS8:
@@ -1898,7 +1905,10 @@ static enum sp_return get_config(struct sp_port *port, struct port_data *data,
 static enum sp_return set_config(struct sp_port *port, struct port_data *data,
 	const struct sp_port_config *config)
 {
+#ifndef HAVE_SANE_TERMIOS
 	unsigned int i;
+#endif
+
 #ifdef __APPLE__
 	BAUD_TYPE baud_nonstd;
 
@@ -2064,6 +2074,12 @@ static enum sp_return set_config(struct sp_port *port, struct port_data *data,
 	int controlbits;
 
 	if (config->baudrate >= 0) {
+#ifdef HAVE_SANE_TERMIOS
+		if (cfsetospeed(&data->term, config->baudrate) < 0)
+			RETURN_FAIL("cfsetospeed() failed");
+		if (cfsetispeed(&data->term, config->baudrate) < 0)
+			RETURN_FAIL("cfsetispeed() failed");
+#else
 		for (i = 0; i < NUM_STD_BAUDRATES; i++) {
 			if (config->baudrate == std_baudrates[i].value) {
 				if (cfsetospeed(&data->term, std_baudrates[i].index) < 0)
@@ -2088,6 +2104,7 @@ static enum sp_return set_config(struct sp_port *port, struct port_data *data,
 			RETURN_ERROR(SP_ERR_SUPP, "Non-standard baudrate not supported");
 #endif
 		}
+#endif
 	}
 
 	if (config->bits >= 0) {

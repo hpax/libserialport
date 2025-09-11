@@ -18,10 +18,10 @@
  */
 
 /*
- * At the time of writing, glibc does not support the Linux kernel interfaces
- * for setting non-standard baud rates and flow control. We therefore have to
- * prepare the correct ioctls ourselves, for which we need the declarations in
- * linux/termios.h.
+ * glibc before version 2.42 does not support the Linux kernel
+ * interfaces for setting non-standard baud rates and flow control. We
+ * therefore have to prepare the correct ioctls ourselves, for which
+ * we need the declarations in linux/termios.h.
  *
  * We can't include linux/termios.h in serialport.c however, because its
  * contents conflict with the termios.h provided by glibc. So this file exists
@@ -37,6 +37,8 @@
 #include <stdlib.h>
 #include <linux/termios.h>
 #include "linux_termios.h"
+
+#ifndef HAVE_SANE_TERMIOS
 
 SP_PRIV unsigned long get_termios_get_ioctl(void)
 {
@@ -126,4 +128,6 @@ SP_PRIV void set_termiox_flow(void *data, int rts, int cts, int dtr, int dsr)
 	if (dsr)
 		termx->x_cflag |= DSRXON;
 }
+#endif
+
 #endif
