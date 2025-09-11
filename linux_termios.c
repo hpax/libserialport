@@ -86,7 +86,7 @@ SP_PRIV void set_termios_speed(void *data, int speed)
 #else
 	struct termios *term = (struct termios *) data;
 #endif
-	term->c_cflag &= ~CBAUD;
+	term->c_cflag &= ~(CBAUD | CIBAUD);
 	term->c_cflag |= BOTHER;
 	term->c_ispeed = term->c_ospeed = speed;
 }
