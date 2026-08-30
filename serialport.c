@@ -23,19 +23,17 @@
 
 #include "libserialport_internal.h"
 
-#define MAKE_BAUD_TABLE static const struct std_baudrate std_baudrates
+#if !defined(HAVE_BAUD_T) && !defined(_WIN32)
+#define MAKE_BAUD_TABLE(static const struct std_baudrate, std_baudrates)
 #include "baudrates.h"
 
-#if !defined(HAVE_BAUD_T) && defined(SPEED_T_IS_SANE)
+#ifdef SPEED_T_IS_SANE
 #define cfsetibaud cfsetispeed
 #define cfsetobaud cfsetospeed
 #define cfgetibaud cfgetispeed
 #define cfgetobaud cfgetospeed
 #define HAVE_BAUD_T 1
 #endif
-
-#ifndef HAVE_BAUD_T
-#define NUM_STD_BAUDRATES ARRAY_SIZE(std_baudrates)
 #endif
 
 void (*sp_debug_handler)(const char *format, ...) = sp_default_debug_handler;
@@ -1697,18 +1695,8 @@ static enum sp_return get_config(struct sp_port *port, struct port_data *data,
 	if (!GetCommState(port->hdl, &data->dcb))
 		RETURN_FAIL("GetCommState() failed");
 
-	for (i = 0; i < NUM_STD_BAUDRATES; i++) {
-		if (data->dcb.BaudRate == std_baudrates[i].index) {
-			config->baudrate = std_baudrates[i].value;
-			break;
-		}
-	}
-
-	if (i == NUM_STD_BAUDRATES)
-		/* BaudRate field can be either an index or a custom baud rate. */
-		config->baudrate = data->dcb.BaudRate;
-
-	config->bits = data->dcb.ByteSize;
+	config->baudrate = data->dcb.BaudRate;
+	config->bits     = data->dcb.ByteSize;
 
 	switch (data->dcb.Parity) {
 	case NOPARITY:
@@ -1920,15 +1908,7 @@ static enum sp_return set_config(struct sp_port *port, struct port_data *data,
 	TRY(await_write_completion(port));
 
 	if (config->baudrate >= 0) {
-		for (i = 0; i < NUM_STD_BAUDRATES; i++) {
-			if (config->baudrate == std_baudrates[i].value) {
-				data->dcb.BaudRate = std_baudrates[i].index;
-				break;
-			}
-		}
-
-		if (i == NUM_STD_BAUDRATES)
-			data->dcb.BaudRate = config->baudrate;
+		data->dcb.BaudRate = config->baudrate;
 
 		/* Allocate write buffer for 50ms of data at baud rate. */
 		port->write_buf_size = max(config->baudrate / (8 * 20), 1);
