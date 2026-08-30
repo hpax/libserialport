@@ -24,7 +24,7 @@
 #include "libserialport_internal.h"
 
 #if !defined(HAVE_BAUD_T) && !defined(_WIN32)
-#define MAKE_BAUD_TABLE(static const struct std_baudrate, std_baudrates)
+#define MAKE_BAUD_TABLE std_baudrates
 #include "baudrates.h"
 
 #ifdef SPEED_T_IS_SANE
@@ -1797,10 +1797,13 @@ static enum sp_return get_config(struct sp_port *port, struct port_data *data,
 #ifdef HAVE_BAUD_T
 	config->baudrate = cfgetobaud(&data->term);
 #else
-	for (i = 0; i < NUM_STD_BAUDRATES; i++) {
-		if (cfgetospeed(&data->term) == std_baudrates[i].index) {
-			config->baudrate = std_baudrates[i].value;
-			break;
+	{
+		speed_t speed = cfgetospeed(&data->term);
+		for (i = 0; i < NUM_STD_BAUDRATES; i++) {
+		    if (speed == std_baudrates[i].index) {
+			    config->baudrate = std_baudrates[i].value;
+			    break;
+		    }
 		}
 	}
 
@@ -1813,7 +1816,7 @@ static enum sp_return get_config(struct sp_port *port, struct port_data *data,
 		config->baudrate = -1;
 #endif
 	}
-#endif
+#endif /* HAVE_BAUD_T */
 
 	switch (data->term.c_cflag & CSIZE) {
 	case CS8:
@@ -1885,8 +1888,8 @@ static enum sp_return get_config(struct sp_port *port, struct port_data *data,
 static enum sp_return set_config(struct sp_port *port, struct port_data *data,
 	const struct sp_port_config *config)
 {
-#ifndef HAVE_BAUD_T
-	unsigned int i;
+#if !defined(HAVE_BAUD_T) && !defined(_WIN32)
+	size_t i;
 #endif
 
 #ifdef __APPLE__
@@ -2052,19 +2055,25 @@ static enum sp_return set_config(struct sp_port *port, struct port_data *data,
 		if (cfsetibaud(&data->term, config->baudrate) < 0)
 			RETURN_FAIL(STRING(cfsetibaud)"() failed");
 #else
-		for (i = 0; i < NUM_STD_BAUDRATES; i++) {
-			if (config->baudrate == std_baudrates[i].value) {
-				if (cfsetospeed(&data->term, std_baudrates[i].index) < 0)
+		size_t l = 0;
+		size_t h = NUM_STD_BAUDRATES;
+		while (l < h) {
+			size_t i = (l+h) >> 1;
+			if (config->baudrate < std_baudrates[i].value) {
+				h = i;
+			} else if (config->baudrate == std_baudrates[i].value) {
+				speed_t ix = std_baudrates[i].index;
+				if (cfsetospeed(&data->term, ix) < 0)
 					RETURN_FAIL("cfsetospeed() failed");
-
-				if (cfsetispeed(&data->term, std_baudrates[i].index) < 0)
+				if (cfsetispeed(&data->term, ix) < 0)
 					RETURN_FAIL("cfsetispeed() failed");
-				break;
+			} else {
+				l = i+1;
 			}
 		}
 
-		/* Non-standard baud rate */
-		if (i == NUM_STD_BAUDRATES) {
+		/* Non-standard baud rate? */
+		if (l >= h) {
 #ifdef __APPLE__
 			/* Set "dummy" baud rate. */
 			if (cfsetspeed(&data->term, B9600) < 0)
@@ -2076,7 +2085,7 @@ static enum sp_return set_config(struct sp_port *port, struct port_data *data,
 			RETURN_ERROR(SP_ERR_SUPP, "Non-standard baudrate not supported");
 #endif
 		}
-#endif
+#endif /* HAVE_BAUD_T */
 	}
 
 	if (config->bits >= 0) {

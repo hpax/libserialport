@@ -45,6 +45,6 @@ for b in $baudrates; do
 	printf '#ifdef B%u\n\t{ B%u, %u },\n#endif\n' $b $b $b
 done
 printf '};\n'
-printf '#define NUM_STD_BAUDRATES ARRAY_SIZE(MAKE_BAUD_RATE)\n'
+printf '#define NUM_STD_BAUDRATES ARRAY_SIZE(MAKE_BAUD_TABLE)\n'
 printf '#endif /* MAKE_BAUD_TABLE */\n'
 printf '\n#endif /* SPEED_T_IS_SANE */\n'
