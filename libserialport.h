@@ -33,14 +33,12 @@
  *
  * libserialport is an open source project released under the LGPL3+ license.
  *
- * The library is maintained by the [sigrok](http://sigrok.org/) project. See
- * the [libserialport homepage](http://sigrok.org/wiki/Libserialport) for the
- * latest information.
+ * The library is a fork of the one by the
+ * [sigrok](http://sigrok.org/) project, maintained by
+ * H. Peter Anvin <hpa@zytor.com>.
  *
- * Source code is maintained in git at
- * [git://sigrok.org/libserialport](http://sigrok.org/gitweb/?p=libserialport.git).
- *
- * Bugs are tracked at http://sigrok.org/bugzilla/.
+ * Source code and bug tracking are available at
+ * [https://github.com/hpax/libserialport](https://github.com/hpax/libserialport).
  *
  * The library was conceived and designed by Martin Ling, is maintained by
  * Uwe Hermann, and has received contributions from several other developers.
