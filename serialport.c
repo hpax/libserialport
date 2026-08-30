@@ -23,26 +23,18 @@
 
 #include "libserialport_internal.h"
 
-#ifndef HAVE_SANE_TERMIOS
-static const struct std_baudrate std_baudrates[] = {
-#ifdef _WIN32
-	/*
-	 * The baudrates 50/75/134/150/200/1800/230400/460800 do not seem to
-	 * have documented CBR_* macros.
-	 */
-	BAUD(110), BAUD(300), BAUD(600), BAUD(1200), BAUD(2400), BAUD(4800),
-	BAUD(9600), BAUD(14400), BAUD(19200), BAUD(38400), BAUD(57600),
-	BAUD(115200), BAUD(128000), BAUD(256000),
-#else
-	BAUD(50), BAUD(75), BAUD(110), BAUD(134), BAUD(150), BAUD(200),
-	BAUD(300), BAUD(600), BAUD(1200), BAUD(1800), BAUD(2400), BAUD(4800),
-	BAUD(9600), BAUD(19200), BAUD(38400), BAUD(57600), BAUD(115200),
-	BAUD(230400),
-#if !defined(__APPLE__) && !defined(__OpenBSD__)
-	BAUD(460800),
+#define MAKE_BAUD_TABLE static const struct std_baudrate std_baudrates
+#include "baudrates.h"
+
+#if !defined(HAVE_BAUD_T) && defined(SPEED_T_IS_SANE)
+#define cfsetibaud cfsetispeed
+#define cfsetobaud cfsetospeed
+#define cfgetibaud cfgetispeed
+#define cfgetobaud cfgetospeed
+#define HAVE_BAUD_T 1
 #endif
-#endif
-};
+
+#ifndef HAVE_BAUD_T
 #define NUM_STD_BAUDRATES ARRAY_SIZE(std_baudrates)
 #endif
 
@@ -1693,7 +1685,7 @@ static enum sp_return set_flow(int fd, struct port_data *data)
 static enum sp_return get_config(struct sp_port *port, struct port_data *data,
 	struct sp_port_config *config)
 {
-#ifndef HAVE_SANE_TERMIOS
+#ifndef HAVE_BAUD_T
 	unsigned int i;
 #endif
 
@@ -1814,8 +1806,8 @@ static enum sp_return get_config(struct sp_port *port, struct port_data *data,
 	data->termiox_supported = 0;
 #endif
 
-#ifdef HAVE_SANE_TERMIOS
-	config->baudrate = cfgetospeed(&data->term);
+#ifdef HAVE_BAUD_T
+	config->baudrate = cfgetobaud(&data->term);
 #else
 	for (i = 0; i < NUM_STD_BAUDRATES; i++) {
 		if (cfgetospeed(&data->term) == std_baudrates[i].index) {
@@ -1905,7 +1897,7 @@ static enum sp_return get_config(struct sp_port *port, struct port_data *data,
 static enum sp_return set_config(struct sp_port *port, struct port_data *data,
 	const struct sp_port_config *config)
 {
-#ifndef HAVE_SANE_TERMIOS
+#ifndef HAVE_BAUD_T
 	unsigned int i;
 #endif
 
@@ -2074,11 +2066,11 @@ static enum sp_return set_config(struct sp_port *port, struct port_data *data,
 	int controlbits;
 
 	if (config->baudrate >= 0) {
-#ifdef HAVE_SANE_TERMIOS
-		if (cfsetospeed(&data->term, config->baudrate) < 0)
-			RETURN_FAIL("cfsetospeed() failed");
-		if (cfsetispeed(&data->term, config->baudrate) < 0)
-			RETURN_FAIL("cfsetispeed() failed");
+#ifdef HAVE_BAUD_T
+		if (cfsetobaud(&data->term, config->baudrate) < 0)
+			RETURN_FAIL(STRING(cfsetobaud)"() failed");
+		if (cfsetibaud(&data->term, config->baudrate) < 0)
+			RETURN_FAIL(STRING(cfsetibaud)"() failed");
 #else
 		for (i = 0; i < NUM_STD_BAUDRATES; i++) {
 			if (config->baudrate == std_baudrates[i].value) {

@@ -30,7 +30,8 @@ AM_CFLAGS += -DLIBSERIALPORT_ATBUILD
 
 lib_LTLIBRARIES = libserialport.la
 
-libserialport_la_SOURCES = serialport.c timing.c libserialport_internal.h
+libserialport_la_SOURCES = serialport.c timing.c libserialport_internal.h \
+			   baudrates.h
 if LINUX
 libserialport_la_SOURCES += linux.c linux_termios.c linux_termios.h
 endif
@@ -50,6 +51,12 @@ libserialport_la_LDFLAGS = -version-info $(SP_LIB_VERSION) -no-undefined
 if MACOSX
 libserialport_la_LDFLAGS += -framework IOKit -framework CoreFoundation
 endif
+
+BUILT_SOURCES			= baudrates.h
+CLEANFILES			= baudrates.h
+nodist_libserialport_la_SOURCES	= baudrates.h
+baudrates.h: baudrates.sh
+	$(SHELL) $< > $@
 
 library_includedir = $(includedir)
 library_include_HEADERS = libserialport.h

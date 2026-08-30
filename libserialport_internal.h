@@ -130,10 +130,11 @@
 #endif
 
 /* Non-standard baudrates are not available everywhere. */
-#ifdef HAVE_SANE_TERMIOS
+#if defined(HAVE_BAUD_T) || defined(HAVE_SANE_TERMIOS)
 /* Directly supported by termios */
 # undef USE_TERMIOS_SPEED
-#elif (defined(HAVE_TERMIOS_SPEED) || defined(HAVE_TERMIOS2_SPEED)) && HAVE_DECL_BOTHER
+#elif (defined(HAVE_TERMIOS_SPEED) || defined(HAVE_TERMIOS2_SPEED)) \
+    && defined(HAVE_DECL_BOTHER)
 # define USE_TERMIOS_SPEED
 #endif
 
@@ -199,13 +200,17 @@ typedef HANDLE event_handle;
 typedef int event_handle;
 #endif
 
+/* If HAVE_SANE_TERMIOS is set, speed_t emulates baud_t */
+#if !defined(HAVE_BAUD_T) && defined(HAVE_SANE_TERMIOS)
+#endif
+
 /* Standard baud rates. */
 #ifdef _WIN32
 #define BAUD_TYPE DWORD
-#define BAUD(n) {CBR_##n, n}
+#elif defined(HAVE_BAUD_T)
+#define BAUD_TYPE baud_t
 #else
 #define BAUD_TYPE speed_t
-#define BAUD(n) {B##n, n}
 #endif
 
 struct std_baudrate {
@@ -214,6 +219,7 @@ struct std_baudrate {
 };
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
+#define STRING(x) #x		/* Expand macros to string */
 
 extern void (*sp_debug_handler)(const char *format, ...);
 

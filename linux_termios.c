@@ -38,7 +38,21 @@
 #include <linux/termios.h>
 #include "linux_termios.h"
 
-#ifndef HAVE_SANE_TERMIOS
+#ifndef HAVE_BAUD_T
+
+#if defined(__powerpc__) && !defined(HAVE_STRUCT_TERMIOS2)
+/*
+ * PowerPC doesn't have termios2, but glibc intercepts ioctl and invokes
+ * a nonstandard version for the standard ioctl names. Therefore, assign
+ * the name "termios2" to the real kernel interface.
+ */
+#define termios2 termios
+#define TCGETS2  _IOR('t', 19, struct termios2)
+#define TCSETS2  _IOW('t', 20, struct termios2)
+#define TCSETSW2 _IOW('t', 21, struct termios2)
+#define TCSETSF2 _IOW('t', 22, struct termios2)
+#define HAVE_STRUCT_TERMIOS2 1
+#endif
 
 SP_PRIV unsigned long get_termios_get_ioctl(void)
 {
