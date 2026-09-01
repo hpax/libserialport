@@ -2067,6 +2067,7 @@ static enum sp_return set_config(struct sp_port *port, struct port_data *data,
 					RETURN_FAIL("cfsetospeed() failed");
 				if (cfsetispeed(&data->term, ix) < 0)
 					RETURN_FAIL("cfsetispeed() failed");
+				break;
 			} else {
 				l = i+1;
 			}
