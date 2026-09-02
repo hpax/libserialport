@@ -34,6 +34,19 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([autostuff])
 AC_CONFIG_AUX_DIR([autostuff])
 
+# Make sure the presence of WINE on a system isn't interpreted as
+# a native compile; it can slow down or even prevent the build from
+# running.
+WINELOADER=/dev/null
+export WINELOADER
+WINESERVER=/dev/null
+export WINESERVER
+WINEPREFIX=/dev/null
+export WINEPREFIX
+
+AC_CANONICAL_BUILD
+AC_CANONICAL_HOST
+
 # C compiler configuration
 AC_USE_SYSTEM_EXTENSIONS
 AC_PROG_CC
