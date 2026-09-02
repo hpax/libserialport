@@ -64,7 +64,7 @@ library_include_HEADERS = libserialport.h
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libserialport.pc
 
-TESTS = test_timing test_feature_guards
+TESTS = test_timing test_feature_guards test_baud_termiox.sh
 check_PROGRAMS = test_timing test_feature_guards
 test_timing_SOURCES = timing.c test_timing.c
 test_timing_CFLAGS = $(AM_CFLAGS)
@@ -72,6 +72,9 @@ test_feature_guards_SOURCES = test_feature_guards.c
 test_feature_guards_CFLAGS = -std=c99 -Wall -Wextra -pedantic
 
 EXTRA_DIST = Doxyfile \
+	test_baud_termiox.sh \
+	tests/baud-termiox/config.h \
+	tests/baud-termiox/linux/termios.h \
 	examples/Makefile \
 	examples/README \
 	examples/list_ports.c \

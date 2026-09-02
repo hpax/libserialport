@@ -108,6 +108,8 @@ SP_PRIV void set_termios_speed(void *data, int speed)
 }
 #endif
 
+#endif /* !HAVE_BAUD_T */
+
 #ifdef HAVE_STRUCT_TERMIOX
 SP_PRIV size_t get_termiox_size(void)
 {
@@ -142,6 +144,4 @@ SP_PRIV void set_termiox_flow(void *data, int rts, int cts, int dtr, int dsr)
 	if (dsr)
 		termx->x_cflag |= DSRXON;
 }
-#endif
-
 #endif
