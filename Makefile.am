@@ -64,10 +64,12 @@ library_include_HEADERS = libserialport.h
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libserialport.pc
 
-TESTS = test_timing
-check_PROGRAMS = test_timing
+TESTS = test_timing test_feature_guards
+check_PROGRAMS = test_timing test_feature_guards
 test_timing_SOURCES = timing.c test_timing.c
 test_timing_CFLAGS = $(AM_CFLAGS)
+test_feature_guards_SOURCES = test_feature_guards.c
+test_feature_guards_CFLAGS = -std=c99 -Wall -Wextra -pedantic
 
 EXTRA_DIST = Doxyfile \
 	examples/Makefile \
