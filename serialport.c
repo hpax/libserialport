@@ -1683,7 +1683,7 @@ static enum sp_return set_flow(int fd, struct port_data *data)
 static enum sp_return get_config(struct sp_port *port, struct port_data *data,
 	struct sp_port_config *config)
 {
-#ifndef HAVE_BAUD_T
+#if !defined(HAVE_BAUD_T) && !defined(_WIN32)
 	unsigned int i;
 #endif
 
@@ -1921,8 +1921,18 @@ static enum sp_return set_config(struct sp_port *port, struct port_data *data,
 		port->write_buf = new_buf;
 	}
 
-	if (config->bits >= 0)
-		data->dcb.ByteSize = config->bits;
+	if (config->bits >= 0) {
+		switch (config->bits) {
+		case 5:
+		case 6:
+		case 7:
+		case 8:
+			data->dcb.ByteSize = (BYTE)config->bits;
+			break;
+		default:
+			RETURN_ERROR(SP_ERR_ARG, "Invalid data bits setting");
+		}
+	}
 
 	if (config->parity >= 0) {
 		switch (config->parity) {
