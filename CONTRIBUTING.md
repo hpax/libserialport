@@ -75,9 +75,10 @@ or `baudrates.sh`.
 
 ## Platform changes
 
-The common implementation is in `serialport.c` and relies on an OS backend
-selected by `configure.ac`/`Makefile.am`. A new or changed backend must
-preserve the `libserialport_internal.h` contracts and implement
-`list_ports()` and `get_port_details()` where enumeration and metadata are
-supported. Guard OS-specific functionality with configure feature macros;
-do not assume a Unix interface is available on every supported platform.
+The common implementation is in `serialport.c`; `serialport_posix.c` and
+`serialport_win32.c` provide the platform I/O implementations selected by
+`configure.ac`/`Makefile.am`. OS enumeration backends must preserve the
+`libserialport_internal.h` contracts and implement `list_ports()` and
+`get_port_details()` where enumeration and metadata are supported. Guard
+OS-specific functionality with configure feature macros; do not assume a Unix
+interface is available on every supported platform.

@@ -286,11 +286,36 @@ extern void (*sp_debug_handler)(const char *format, ...);
 
 #define TRY(x) do { int retval = x; if (retval != SP_OK) RETURN_CODEVAL(retval); } while (0)
 
+#define CHECK_PORT() do { \
+	if (!port) \
+		RETURN_ERROR(SP_ERR_ARG, "Null port"); \
+	if (!port->name) \
+		RETURN_ERROR(SP_ERR_ARG, "Null port name"); \
+} while (0)
+#define CHECK_OPEN_PORT() do { \
+	CHECK_PORT(); \
+	if (!sp_platform_port_is_open(port)) \
+		RETURN_ERROR(SP_ERR_ARG, "Port not open"); \
+} while (0)
+
 SP_PRIV struct sp_port **list_append(struct sp_port **list, const char *portname);
 
 /* OS-specific Helper functions. */
 SP_PRIV enum sp_return get_port_details(struct sp_port *port);
 SP_PRIV enum sp_return list_ports(struct sp_port ***list);
+SP_PRIV void sp_platform_init_port(struct sp_port *port);
+SP_PRIV enum sp_return sp_platform_canonicalize_port_name(const char *portname,
+		char **canonical_name);
+SP_PRIV bool sp_platform_port_is_open(const struct sp_port *port);
+SP_PRIV void sp_platform_free_port(struct sp_port *port);
+SP_PRIV enum sp_return sp_platform_open(struct sp_port *port,
+		enum sp_mode flags);
+SP_PRIV enum sp_return sp_platform_set_default_config(struct sp_port *port,
+		struct port_data *data);
+SP_PRIV enum sp_return sp_platform_get_config(struct sp_port *port,
+		struct port_data *data, struct sp_port_config *config);
+SP_PRIV enum sp_return sp_platform_set_config(struct sp_port *port,
+		struct port_data *data, const struct sp_port_config *config);
 
 /* Timing abstraction */
 

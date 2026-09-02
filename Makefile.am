@@ -37,7 +37,9 @@ if LINUX
 libserialport_la_SOURCES += linux.c linux_termios.c linux_termios.h
 endif
 if WIN32
-libserialport_la_SOURCES += windows.c
+libserialport_la_SOURCES += windows.c serialport_win32.c
+else
+libserialport_la_SOURCES += serialport_posix.c
 endif
 if MACOSX
 libserialport_la_SOURCES += macosx.c
