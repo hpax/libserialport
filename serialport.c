@@ -8,6 +8,7 @@
  * Copyright (C) 2013-2015 Martin Ling <martin-libserialport@earth.li>
  * Copyright (C) 2013 Matthias Heidbrink <m-sigrok@heidbrink.biz>
  * Copyright (C) 2014 Aurelien Jacobs <aurel@gnuage.org>
+ * Copyright (C) 2026 H. Peter Anvin <hpa@zytor.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
