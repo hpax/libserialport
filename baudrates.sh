@@ -1,4 +1,5 @@
 #!/bin/sh -
+# SPDX-License-Identifier: LGPL-3.0-or-later
 #
 # Usage: baudrates.sh output [macro_def_files]
 #

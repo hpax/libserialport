@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: LGPL-3.0-or-later */
+
 #include "config.h"
 #include "libserialport.h"
 #include "libserialport_internal.h"

@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: LGPL-3.0-or-later */
+
 #ifndef TEST_LINUX_TERMIOS_H
 #define TEST_LINUX_TERMIOS_H
 

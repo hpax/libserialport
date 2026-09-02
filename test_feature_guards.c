@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: LGPL-3.0-or-later */
+
 /* Exercise configure results whose macros are defined with a value of zero. */
 #define HAVE_TERMIOS2_SPEED 1
 #define HAVE_DECL_BOTHER 0
