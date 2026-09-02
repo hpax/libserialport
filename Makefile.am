@@ -31,15 +31,20 @@ AM_CFLAGS += -DLIBSERIALPORT_ATBUILD
 
 lib_LTLIBRARIES = libserialport.la
 
-libserialport_la_SOURCES = serialport.c timing.c libserialport_internal.h \
-			   baudrates.h
-if LINUX
-libserialport_la_SOURCES += linux.c linux_termios.c linux_termios.h
-endif
+# Cross-platform sources
+libserialport_la_SOURCES = serialport.c timing.c libserialport_internal.h
+
+# Win32 versus POSIX
 if WIN32
 libserialport_la_SOURCES += windows.c serialport_win32.c
 else
-libserialport_la_SOURCES += serialport_posix.c
+libserialport_la_SOURCES += serialport_posix.c baudrates.h
+BUILT_SOURCES		  = baudrates.h
+endif
+
+# Additional sources for specific POSIX systems
+if LINUX
+libserialport_la_SOURCES += linux.c linux_termios.c linux_termios.h
 endif
 if MACOSX
 libserialport_la_SOURCES += macosx.c
@@ -55,7 +60,6 @@ if MACOSX
 libserialport_la_LDFLAGS += -framework IOKit -framework CoreFoundation
 endif
 
-BUILT_SOURCES			= baudrates.h
 CLEANFILES			= baudrates.h
 nodist_libserialport_la_SOURCES	= baudrates.h
 baudrates.h: baudrates.sh
