@@ -22,9 +22,9 @@ There is no separate lint target. The autotools build compiles C99 code with
 is generated with `make doc` and written under `doxy/`.
 
 Windows builds use the Visual Studio 2019 solution (`libserialport.sln`), whose
-library project builds `serialport.c`, `timing.c`, and `windows.c`. The shared
-MSBuild properties enforce warning level 4, warnings-as-errors, SDL checks,
-and conformance mode.
+library project builds `serialport.c`, `serialport_win32.c`, `timing.c`, and
+`windows.c`. The shared MSBuild properties enforce warning level 4,
+warnings-as-errors, SDL checks, and conformance mode.
 
 ## Architecture
 
