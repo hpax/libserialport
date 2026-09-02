@@ -134,7 +134,7 @@
 /* Directly supported by termios */
 # undef USE_TERMIOS_SPEED
 #elif (defined(HAVE_TERMIOS_SPEED) || defined(HAVE_TERMIOS2_SPEED)) \
-    && defined(HAVE_DECL_BOTHER)
+    && HAVE_DECL_BOTHER
 # define USE_TERMIOS_SPEED
 #endif
 
