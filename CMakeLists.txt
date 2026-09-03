@@ -90,6 +90,49 @@ if(UNIX)
         1152000 1500000 2000000 2500000 3000000 3500000 4000000 5000000
         10000000
     )
+    set(libserialport_termios_source
+        "${CMAKE_CURRENT_BINARY_DIR}/libserialport-termios.c"
+    )
+    file(WRITE "${libserialport_termios_source}"
+        "#include <sys/types.h>\n"
+        "#include <termios.h>\n"
+        "#include <sys/ioctl.h>\n"
+    )
+    foreach(libserialport_macro_option IN ITEMS
+        -dM -xdumpmacros -qshowmacros -PD
+    )
+        execute_process(
+            COMMAND "${CMAKE_C_COMPILER}" ${CMAKE_C_COMPILER_ARG1}
+                -E "${libserialport_macro_option}"
+                "${libserialport_termios_source}"
+            RESULT_VARIABLE libserialport_macro_result
+            OUTPUT_VARIABLE libserialport_macro_output
+            ERROR_QUIET
+        )
+        if(libserialport_macro_result EQUAL 0)
+            string(REGEX MATCHALL
+                "#[ \t]*define[ \t]+B[1-9][0-9]*"
+                libserialport_baudrate_definitions
+                "${libserialport_macro_output}"
+            )
+            foreach(libserialport_baudrate_definition IN LISTS
+                libserialport_baudrate_definitions
+            )
+                string(REGEX REPLACE
+                    ".*B([1-9][0-9]*)$"
+                    "\\1"
+                    libserialport_baudrate
+                    "${libserialport_baudrate_definition}"
+                )
+                list(APPEND libserialport_baudrates
+                    "${libserialport_baudrate}"
+                )
+            endforeach()
+            break()
+        endif()
+    endforeach()
+    list(REMOVE_DUPLICATES libserialport_baudrates)
+    list(SORT libserialport_baudrates COMPARE NATURAL)
     set(libserialport_baud_condition "")
     set(libserialport_baud_table "")
     foreach(baudrate IN LISTS libserialport_baudrates)
