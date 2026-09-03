@@ -786,15 +786,24 @@ SP_API enum sp_return sp_drain(struct sp_port *port)
 
 	DEBUG_FMT("Draining port %s", port->name);
 
-	int result;
 	while (1) {
-#if defined(__ANDROID__) && (__ANDROID_API__ < 21)
-		/* Android only has tcdrain from platform 21 onwards.
-		 * On previous API versions, use the ioctl directly. */
-		int arg = 1;
-		result = ioctl(port->fd, TCSBRK, &arg);
-#else
+		int result;
+#ifdef HAVE_TCDRAIN
+		/* Proper POSIX */
 		result = tcdrain(port->fd);
+#elif defined(TCSBRK)
+		/*
+		 * Android only has tcdrain from platform 21 onwards.
+		 * On previous API versions, use the ioctl directly.
+		 *
+		 * TCSBRK(1) behaves like tcdrain() on most systems;
+		 * hopefully the ones that don't will actually have
+		 * tcdrain() implemented.
+		 */
+		result = ioctl(port->fd, TCSBRK, 1);
+#else
+		/* Need platform-specific code for this case. */
+#error "Neither tcdrain() nor TCSBRK defined, send a bug report"
 #endif
 		if (result < 0) {
 			if (errno == EINTR) {

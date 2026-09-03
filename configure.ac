@@ -151,6 +151,9 @@ AC_CHECK_DECLS([BOTHER],,, [[#include <linux/termios.h>]])
 # Check for serial_struct.
 AC_CHECK_TYPES([struct serial_struct],,, [[#include <linux/serial.h>]])
 
+# Check for tcdrain (omitted in Android < 21)
+AC_CHECK_FUNCS([tcdrain])
+
 # Check for realpath().
 AC_CHECK_FUNCS([realpath])
 
