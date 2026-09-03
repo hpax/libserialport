@@ -39,6 +39,10 @@ if(NOT MSVC)
     target_compile_definitions(libserialport PRIVATE LIBSERIALPORT_ATBUILD)
     target_include_directories(libserialport PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
+    set(libserialport_saved_required_flags "${CMAKE_REQUIRED_FLAGS}")
+    if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+        string(APPEND CMAKE_REQUIRED_FLAGS " -Werror")
+    endif()
     check_c_source_compiles(
         "__attribute__((visibility(\"hidden\"))) void f(void) {}\nint main(void) { f(); return 0; }"
         LIBSERIALPORT_HAS_VISIBILITY_ATTRIBUTE
@@ -46,7 +50,16 @@ if(NOT MSVC)
     if(LIBSERIALPORT_HAS_VISIBILITY_ATTRIBUTE)
         set(SP_API "__attribute__((visibility(\"default\")))")
         set(SP_PRIV "__attribute__((visibility(\"hidden\")))")
+    else()
+        check_c_source_compiles(
+            "__declspec(dllexport) void f(void) {}\nint main(void) { f(); return 0; }"
+            LIBSERIALPORT_HAS_DECLSPEC
+        )
+        if(LIBSERIALPORT_HAS_DECLSPEC)
+            set(SP_API "__declspec(dllexport)")
+        endif()
     endif()
+    set(CMAKE_REQUIRED_FLAGS "${libserialport_saved_required_flags}")
 endif()
 
 if(UNIX)
