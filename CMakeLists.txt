@@ -28,12 +28,14 @@ target_compile_features(libserialport PUBLIC c_std_99)
 set_target_properties(libserialport PROPERTIES
     C_EXTENSIONS OFF
     POSITION_INDEPENDENT_CODE ON
+    PREFIX ""
     VERSION 0.1.1
     SOVERSION 0
 )
 
 set(SP_API "")
 set(SP_PRIV "")
+set(LIBSERIALPORT_NEEDS_LIBUSB OFF)
 
 if(NOT MSVC)
     target_compile_definitions(libserialport PRIVATE LIBSERIALPORT_ATBUILD)
@@ -128,6 +130,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(LIBUSB REQUIRED IMPORTED_TARGET libusb-2.0)
     target_link_libraries(libserialport PRIVATE PkgConfig::LIBUSB)
+    set(LIBSERIALPORT_NEEDS_LIBUSB ON)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_sources(libserialport PRIVATE linux.c linux_termios.c linux_termios.h)
 
