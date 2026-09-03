@@ -791,6 +791,14 @@ SP_API enum sp_return sp_drain(struct sp_port *port)
 #ifdef HAVE_TCDRAIN
 		/* Proper POSIX */
 		result = tcdrain(port->fd);
+#elif defined(TIOCDRAIN)
+		/*
+		 * No system is known which has TIOCDRAIN but is missing
+		 * tcdrain(), however, this guards against any such system
+		 * appearing and invoking the TCSBRK fallback, which might
+		 * not work on such systems.
+		 */
+		result = ioctl(port->fd, TIOCDRAIN);
 #elif defined(TCSBRK)
 		/*
 		 * Android only has tcdrain from platform 21 onwards.
@@ -798,7 +806,7 @@ SP_API enum sp_return sp_drain(struct sp_port *port)
 		 *
 		 * TCSBRK(1) behaves like tcdrain() on most systems;
 		 * hopefully the ones that don't will actually have
-		 * tcdrain() implemented.
+		 * tcdrain() implemented, or will have TIOCDRAIN.
 		 */
 		result = ioctl(port->fd, TCSBRK, 1);
 #else
