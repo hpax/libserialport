@@ -37,7 +37,9 @@ set(SP_PRIV "")
 
 if(NOT MSVC)
     target_compile_definitions(libserialport PRIVATE LIBSERIALPORT_ATBUILD)
-    target_include_directories(libserialport PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+    target_include_directories(libserialport BEFORE PRIVATE
+        "${CMAKE_CURRENT_BINARY_DIR}"
+    )
 
     set(libserialport_saved_required_flags "${CMAKE_REQUIRED_FLAGS}")
     if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
@@ -192,8 +194,8 @@ endif()
 if(BUILD_TESTING)
     add_executable(test_timing test_timing.c timing.c)
     target_include_directories(test_timing PRIVATE
-        "${CMAKE_CURRENT_SOURCE_DIR}"
         "${CMAKE_CURRENT_BINARY_DIR}"
+        "${CMAKE_CURRENT_SOURCE_DIR}"
     )
     target_compile_features(test_timing PRIVATE c_std_99)
     if(MSVC)

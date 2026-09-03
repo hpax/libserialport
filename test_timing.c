@@ -1,6 +1,10 @@
-/* SPDX-License-Identifier: LGPL-3.0-or-later */
+/*
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ *
+ * Copyright (C) 2026 H. Peter Anvin <hpa@zytor.com>
+ */
 
-#include "config.h"
+#include <config.h>
 #include "libserialport.h"
 #include "libserialport_internal.h"
 #include <assert.h>
