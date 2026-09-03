@@ -12,6 +12,14 @@ build:
 make
 ```
 
+The native CMake build supports all platforms:
+
+```sh
+cmake -S . -B build
+cmake --build build
+ctest --test-dir build
+```
+
 Run the complete test suite with `make check`. Run one Automake test with,
 for example, `make check TESTS=test_feature_guards`; the available tests are
 `test_timing`, `test_feature_guards`, and `test_baud_termiox.sh`. To build and
@@ -45,6 +53,8 @@ warnings-as-errors, SDL checks, and conformance mode.
   `linux.c`, `windows.c`, `macosx.c`, and `freebsd.c` supply `list_ports()` and
   `get_port_details()` where supported. Linux-specific termios/termiox
   compatibility helpers are isolated in `linux_termios.c`.
+- CMake follows the same split: native Windows builds select
+  `serialport_win32.c`, while POSIX targets select `serialport_posix.c`.
 - Examples are independent consumers of the public API. `examples/Makefile`
   uses `pkg-config` against an installed library rather than the in-tree build.
 

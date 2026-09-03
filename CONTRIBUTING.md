@@ -59,6 +59,14 @@ make
 make check
 ```
 
+The native CMake build can be configured and tested with:
+
+```sh
+cmake -S . -B build
+cmake --build build
+ctest --test-dir build
+```
+
 Run an individual Automake test with, for example:
 
 ```sh
