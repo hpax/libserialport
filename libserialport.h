@@ -281,11 +281,14 @@ extern "C" {
 /** @cond */
 #ifdef _MSC_VER
 /* Microsoft Visual C/C++ compiler in use */
-#ifdef LIBSERIALPORT_MSBUILD
-/* Building the library - need to export DLL symbols */
+#ifdef LIBSERIALPORT_STATIC
+/* Static library build or consumer - no DLL decoration is required. */
+#define SP_API
+#elif defined(LIBSERIALPORT_MSBUILD)
+/* Building the shared library - need to export DLL symbols. */
 #define SP_API __declspec(dllexport)
 #else
-/* Using the library - need to import DLL symbols */
+/* Using the shared library - need to import DLL symbols. */
 #define SP_API __declspec(dllimport)
 #endif
 #else
