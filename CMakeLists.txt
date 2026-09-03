@@ -29,6 +29,7 @@ set_target_properties(libserialport PROPERTIES
     C_EXTENSIONS OFF
     POSITION_INDEPENDENT_CODE ON
     PREFIX ""
+    IMPORT_PREFIX ""
     VERSION 0.1.1
     SOVERSION 0
 )
