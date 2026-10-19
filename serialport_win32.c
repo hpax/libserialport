@@ -276,8 +276,10 @@ static enum sp_return get_config(struct sp_port *port, struct port_data *data,
 	if (!GetCommState(port->hdl, &data->dcb))
 		RETURN_FAIL("GetCommState() failed");
 
+	/* For some devices, Windows returns ByteSize := 0 */
+	/* In that case, coerce to 8 as a default          */
 	config->baudrate = data->dcb.BaudRate;
-	config->bits     = data->dcb.ByteSize;
+	config->bits     = data->dcb.ByteSize != 0 ? data->dcb.ByteSize : 8;
 
 	switch (data->dcb.Parity) {
 	case NOPARITY:
