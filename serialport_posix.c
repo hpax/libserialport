@@ -595,19 +595,20 @@ static enum sp_return set_config(struct sp_port *port, struct port_data *data,
 				data->cts_flow = 1;
 
 			if (data->rts_flow && data->cts_flow)
-				data->term.c_iflag |= CRTSCTS;
+				data->term.c_cflag |= CRTSCTS;
 			else
-				data->term.c_iflag &= ~CRTSCTS;
+				data->term.c_cflag &= ~CRTSCTS;
 		} else {
 			/* Asymmetric use of RTS/CTS not supported. */
-			if (data->term.c_iflag & CRTSCTS) {
+			if (data->term.c_cflag & CRTSCTS) {
 				/* Flow control can only be disabled for both RTS & CTS together. */
 				if (config->rts >= 0 && config->rts != SP_RTS_FLOW_CONTROL) {
 					if (config->cts != SP_CTS_IGNORE)
 						RETURN_ERROR(SP_ERR_SUPP, "RTS & CTS flow control must be disabled together");
 				}
+				/* An unspecified RTS follows CTS, as on the termiox path. */
 				if (config->cts >= 0 && config->cts != SP_CTS_FLOW_CONTROL) {
-					if (config->rts <= 0 || config->rts == SP_RTS_FLOW_CONTROL)
+					if (config->rts == SP_RTS_FLOW_CONTROL)
 						RETURN_ERROR(SP_ERR_SUPP, "RTS & CTS flow control must be disabled together");
 				}
 			} else {
@@ -619,13 +620,16 @@ static enum sp_return set_config(struct sp_port *port, struct port_data *data,
 
 			if (config->rts >= 0) {
 				if (config->rts == SP_RTS_FLOW_CONTROL) {
-					data->term.c_iflag |= CRTSCTS;
+					data->term.c_cflag |= CRTSCTS;
 				} else {
+					data->term.c_cflag &= ~CRTSCTS;
 					controlbits = TIOCM_RTS;
 					if (ioctl(port->fd, config->rts == SP_RTS_ON ? TIOCMBIS : TIOCMBIC,
 							&controlbits) < 0)
 						RETURN_FAIL("Setting RTS signal level failed");
 				}
+			} else if (config->cts == SP_CTS_IGNORE) {
+				data->term.c_cflag &= ~CRTSCTS;
 			}
 		}
 	}
