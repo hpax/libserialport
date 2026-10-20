@@ -13,6 +13,7 @@ ${CC:-cc} ${CPPFLAGS:-} ${CFLAGS:-} \
 	-c "$source_dir/linux_termios.c" -o "$tmp_dir/linux_termios.o"
 
 ${NM:-nm} "$tmp_dir/linux_termios.o" > "$tmp_dir/symbols"
-grep -q ' get_termiox_size$' "$tmp_dir/symbols"
-grep -q ' get_termiox_flow$' "$tmp_dir/symbols"
-grep -q ' set_termiox_flow$' "$tmp_dir/symbols"
+# Mach-O object files prefix C symbol names with an underscore.
+grep -q -E ' _?get_termiox_size$' "$tmp_dir/symbols"
+grep -q -E ' _?get_termiox_flow$' "$tmp_dir/symbols"
+grep -q -E ' _?set_termiox_flow$' "$tmp_dir/symbols"
