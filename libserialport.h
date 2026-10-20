@@ -597,6 +597,9 @@ SP_API enum sp_return sp_open(struct sp_port *port, enum sp_mode flags);
 /**
  * Close the specified serial port.
  *
+ * Event sets that include the port are not updated; see
+ * sp_add_port_events().
+ *
  * @param[in] port Pointer to a port structure. Must not be NULL.
  *
  * @return SP_OK upon success, a negative error code otherwise.
@@ -1514,8 +1517,11 @@ SP_API enum sp_return sp_new_event_set(struct sp_event_set **result_ptr);
  * The port must first be opened by calling sp_open() using the same port
  * structure.
  *
- * After the port is closed or the port structure freed, the results may
- * no longer be valid.
+ * The event set keeps the port's underlying OS handle, not the port
+ * structure. Closing the port does not remove it from the set, and there is
+ * no way to remove it: free the set and create a new one before waiting
+ * again. Otherwise sp_wait() fails or, if the OS has reused the handle in
+ * the meantime, waits on an unrelated object.
  *
  * @param[in,out] event_set Event set to update. Must not be NULL.
  * @param[in] port Pointer to a port structure. Must not be NULL.
@@ -1530,6 +1536,10 @@ SP_API enum sp_return sp_add_port_events(struct sp_event_set *event_set,
 
 /**
  * Wait for any of a set of events to occur.
+ *
+ * The call returns SP_OK both when an event occurs and when the timeout
+ * expires; check the ports afterwards to tell which. It fails if a port
+ * in the set has been closed since it was added, see sp_add_port_events().
  *
  * @param[in] event_set Event set to wait on. Must not be NULL.
  * @param[in] timeout_ms Timeout in milliseconds, or zero to wait indefinitely.
