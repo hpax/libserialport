@@ -30,6 +30,7 @@
 #define MAKE_BAUD_TABLE std_baudrates
 #include "baudrates.h"
 
+/* Never defined on macOS, where non-B* rates need IOSSIOSPEED */
 #ifdef SPEED_T_IS_SANE
 #define cfsetibaud cfsetispeed
 #define cfsetobaud cfsetospeed
@@ -445,10 +446,6 @@ static enum sp_return get_config(struct sp_port *port, struct port_data *data,
 static enum sp_return set_config(struct sp_port *port, struct port_data *data,
 	const struct sp_port_config *config)
 {
-#if !defined(HAVE_CFSETOBAUD)
-	size_t i;
-#endif
-
 #ifdef __APPLE__
 	BAUD_TYPE baud_nonstd;
 
