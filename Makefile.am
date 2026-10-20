@@ -96,10 +96,17 @@ pkgconfig_DATA = libserialport.pc
 
 TESTS = test_timing test_feature_guards test_baud_termiox.sh
 check_PROGRAMS = test_timing test_feature_guards
+if !WIN32
+TESTS += test_event_set
+check_PROGRAMS += test_event_set
+endif
 test_timing_SOURCES = timing.c test_timing.c
 test_timing_CFLAGS = $(AM_CFLAGS)
 test_feature_guards_SOURCES = test_feature_guards.c
 test_feature_guards_CFLAGS = -std=c99 -Wall -Wextra -pedantic
+test_event_set_SOURCES = test_event_set.c
+test_event_set_CFLAGS = $(AM_CFLAGS)
+test_event_set_LDADD = libserialport.la
 
 EXTRA_DIST = Doxyfile \
 	baudrates.sh \
