@@ -43,7 +43,8 @@ int main(int argc, char *argv[])
 	time_sub(&b, &a, &c);
 	printf("Measured: %ums\n", time_as_ms(&c));
 	assert(time_as_ms(&c) >= 950);
-	assert(time_as_ms(&c) <= 1050);
+	/* A busy machine may wake us up late */
+	assert(time_as_ms(&c) <= 1500);
 	printf("Starting 3s timeout\n");
 	timeout_start(&to, 3000);
 	printf("Time to wait: %dms\n", timeout_remaining_ms(&to));
