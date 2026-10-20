@@ -1240,6 +1240,15 @@ SP_API enum sp_return sp_wait(struct sp_event_set *event_set,
 		}
 	}
 
+	/* A port closed after it was added to the set shows up as POLLNVAL */
+	for (i = 0; i < event_set->count; i++) {
+		if (pollfds[i].revents & POLLNVAL) {
+			free(pollfds);
+			errno = EBADF;
+			RETURN_FAIL("Event set contains a closed port");
+		}
+	}
+
 	free(pollfds);
 	RETURN_OK();
 }

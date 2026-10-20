@@ -275,6 +275,18 @@ if(BUILD_TESTING)
     target_compile_features(test_feature_guards PRIVATE c_std_99)
     add_test(NAME feature_guards COMMAND test_feature_guards)
 
+    if(UNIX)
+        add_executable(test_event_set test_event_set.c)
+        target_include_directories(test_event_set PRIVATE
+            "${CMAKE_CURRENT_BINARY_DIR}"
+            "${CMAKE_CURRENT_SOURCE_DIR}"
+        )
+        target_compile_features(test_event_set PRIVATE c_std_99)
+        target_compile_definitions(test_event_set PRIVATE LIBSERIALPORT_ATBUILD)
+        target_link_libraries(test_event_set PRIVATE libserialport)
+        add_test(NAME event_set COMMAND test_event_set)
+    endif()
+
     if(APPLE AND BUILD_SHARED_LIBS)
         add_test(NAME macho_version COMMAND "${CMAKE_COMMAND}"
             "-DLIBRARY=$<TARGET_FILE:libserialport>"
